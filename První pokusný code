@@ -1,0 +1,120 @@
+// LCD displej pres I2C
+// navody.dratek.cz
+
+// knihovny pro LCD přes I2C
+
+#include <LiquidCrystal_I2C.h>
+const int p1 = 4;
+const int p2 = 5;
+
+int player_1_points = 0;
+int player_2_points = 0;
+
+bool p1_state;
+bool p2_state;
+
+bool last_p1_state = false;
+bool last_p2_state = false;
+
+unsigned long p1_lastDebounceTime = 0;
+unsigned long p2_lastDebounceTime = 0;  
+unsigned long debounceDelay = 50;
+
+// nastavení adresy I2C (0x27 v mém případě),
+// a dále počtu znaků a řádků LCD, zde 20x4
+LiquidCrystal_I2C lcd(0x27, 20, 4);
+
+void setup()
+{
+   
+ 
+  pinMode(p1, INPUT_PULLUP);
+  pinMode(p2, INPUT_PULLUP);
+  // inicializace LCD
+  lcd.begin();
+  // zapnutí podsvícení
+  lcd.backlight();
+  // vytisknutí hlášky na první řádek
+  lcd.print("   Air hockey");
+  // nastavení kurzoru na první znak, druhý řádek
+  // veškeré číslování je od nuly, poslední znak je tedy 19, 3
+  lcd.setCursor ( 0, 2 );
+  lcd.print("   Vitejte ve hre");
+  lcd.setCursor ( 0, 2);
+   lcd.print("");
+ 
+
+  delay(3000);
+  Serial.begin(9600);
+  delay(2000);
+ lcd.clear();
+  lcd.setCursor(1, 1);
+  lcd.print(" P1:");
+  lcd.setCursor(13, 1);
+  lcd.print(" P2: ");
+} 
+
+
+void update_screen(){
+  if (player_1_points > player_2_points){
+    
+  }
+  else if (player_2_points > player_1_points){
+   
+  }
+ 
+  
+  lcd.setCursor(7,1);
+  lcd.print(player_1_points);
+  lcd.setCursor(18, 1);
+  lcd.print(player_2_points);
+
+}
+void loop()
+
+{
+ 
+ 
+  int p1_reading = digitalRead(p1);
+  int p2_reading = digitalRead(p2);
+  
+  if (p1_reading != last_p1_state) {
+    p1_lastDebounceTime = millis();
+  }
+
+  if (p2_reading != last_p2_state) {
+    p2_lastDebounceTime = millis();
+  }
+
+  if ((millis() - p1_lastDebounceTime) > debounceDelay) {
+    
+    if (p1_reading != p1_state) {
+      
+      p1_state = p1_reading;
+      
+      if (p1_state == HIGH) {
+        player_1_points ++;
+      }
+    }
+  }
+
+  if ((millis() - p2_lastDebounceTime) > debounceDelay) {
+    
+    if (p2_reading != p2_state) {
+      
+      p2_state = p2_reading;
+      
+      if (p2_state == HIGH) {
+        player_2_points ++;
+      }
+    }
+  }
+   last_p1_state = p1_reading;
+   last_p2_state = p2_reading;
+
+   update_screen();
+
+
+}
+ 
+  
