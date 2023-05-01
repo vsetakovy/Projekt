@@ -1,0 +1,121 @@
+#include <LiquidCrystal_I2C.h>
+int Hrac1 = 0;
+int Hrac2 = 0;
+int Start = 0;
+int inputPin = 2;   
+int pirState = LOW;             // we start, assuming no motion detected
+int val = 0; 
+int inputPin1 = 3;   
+int pirState1 = LOW;             // we start, assuming no motion detected
+int val1 = 0; 
+LiquidCrystal_I2C lcd(0x27, 20, 4);
+void setup() {
+  // put your setup code here, to run once:
+pinMode(inputPin, INPUT);     // declare sensor as input
+ pinMode(inputPin1, INPUT); 
+ lcd.begin();
+  // zapnutí podsvícení
+  lcd.backlight();
+  // vytisknutí hlášky na první řádek
+  lcd.setCursor ( 2, 0 );
+  lcd.print("   Air hockey");
+  // nastavení kurzoru na první znak, druhý řádek
+  // veškeré číslování je od nuly, poslední znak je tedy 19, 3
+  lcd.setCursor ( 0, 2 );
+  lcd.print("   Vitejte ve hre");
+  lcd.setCursor ( 0, 2);
+   lcd.print("");
+    delay(2000);
+  Serial.begin(9600);
+  delay(2000);
+ lcd.clear();
+} 
+
+
+void loop() {
+  if(Start == 0){
+  Menu();
+  }
+  Goly();
+}
+
+
+
+
+
+void Menu(){
+  if(Start == 0){
+  lcd.setCursor ( 5, 1 );
+  lcd.print("Zacatek Hry");
+ }
+  delay(1500);
+  lcd.clear();
+   lcd.setCursor(1, 1);
+  lcd.print(" P1:");
+  lcd.setCursor(12, 1);
+  lcd.print(" P2: ");
+  lcd.setCursor(6,1);
+  lcd.print(Hrac1);
+  lcd.setCursor(17, 1);
+  lcd.print(Hrac2);
+  Start++;
+  }
+ void Goly(){
+   val = digitalRead(inputPin);  // read input value
+  if (val == HIGH) { 
+    Konec();
+    if (pirState == LOW) {
+     Hrac1++;
+      lcd.setCursor(6,1);
+     lcd.print(Hrac1);
+      pirState = HIGH;
+    }
+  } else {
+    if (pirState == HIGH){
+      //Hrac2++;
+      lcd.setCursor(17,1);
+     lcd.print(Hrac2);
+      pirState = LOW;
+    }
+  }
+  val1 = digitalRead(inputPin1);  // read input value
+  if (val1 == HIGH) { 
+    Konec();
+    if (pirState1 == LOW) {
+     Hrac2++;
+      lcd.setCursor(17,1);
+     lcd.print(Hrac2);
+      pirState1 = HIGH;
+    }
+  } else {
+    if (pirState1 == HIGH){
+      //Hrac2++;
+      lcd.setCursor(17,1);
+     lcd.print(Hrac2);
+      pirState1 = LOW;
+    }
+  }
+  }
+  void Konec(){
+  if(Hrac1 == 2 || Hrac2 == 2){
+    lcd.clear();
+    lcd.setCursor ( 5, 1 );
+    lcd.print("Konec Hry");
+    if(Hrac1 == 2){
+       lcd.setCursor ( 3, 2 );
+       lcd.print("Hrac 1 Vyhral");
+     }else{
+      lcd.setCursor ( 3, 2 );
+      lcd.print("Hrac 2 Vyhral");       
+}
+    delay(4000);
+    lcd.clear();
+    Clearkod();
+    }
+  
+  }
+void Clearkod(){
+  Hrac1 = 0;
+  Hrac2 = 0;
+  Start = 0;
+  }
